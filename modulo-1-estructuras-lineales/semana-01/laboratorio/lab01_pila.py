@@ -1,24 +1,29 @@
 class Pila:
     def __init__(self):
         self.datos = []
+
     def pop(self):
-     if self.is_empty():
-        raise IndexError("pop en pila vacía")
-     return self.datos.pop()
+        if self.is_empty():
+            raise IndexError("pop en pila vacía")
+        return self.datos.pop()
+
     def is_empty(self):
-        return len(self.datos) ==0       
+        return len(self.datos) == 0
+
+
 pila = Pila()
 # quien usa la pila:
 try:
     pila.pop()
 except IndexError:
     print("La pila estaba vacia")
-    
-#Lab 1 — Implementación de la clase Pila (Stack)    
+
+# Lab 1 — Implementación de la clase Pila (Stack)
 # INF 222 Estructura de Datos · Semestre 2026-2
-#Estudiante: _________________________
-#Grupo: ______________________________
-#Fecha: ______________________________ #
+# Estudiante: _________________________
+# Grupo: ______________________________
+# Fecha: ______________________________ #
+
 
 class Pila:
     """
@@ -29,7 +34,7 @@ class Pila:
 
     def __init__(self):
         """Inicializa una pila vacía."""
-        self._datos = []  # el tope de la pila está en el índice -1
+        self.datos = []  # el tope de la pila está en el índice -1
 
     def push(self, dato):
         """
@@ -37,7 +42,7 @@ class Pila:
         Complejidad: O(1) amortizado.
         """
         # TODO: implementa este método
-        pass
+        self.datos.append(dato)
 
     def pop(self):
         """
@@ -47,7 +52,9 @@ class Pila:
         """
         # TODO: implementa este método
         # Recuerda verificar si la pila está vacía antes de operar
-        pass
+        if self.is_empty():
+         raise IndexError("pop en pila vacía")
+        return self.datos.pop()
 
     def peek(self):
         """
@@ -56,7 +63,9 @@ class Pila:
         Complejidad: O(1).
         """
         # TODO: implementa este método
-        pass
+        if self.is_empty():
+            raise IndexError("peek en pila vacía")
+        return self.datos[-1]
 
     def is_empty(self):
         """
@@ -64,7 +73,7 @@ class Pila:
         Complejidad: O(1).
         """
         # TODO: implementa este método
-        pass
+        return len(self.datos) == 0
 
     def size(self):
         """
@@ -72,7 +81,7 @@ class Pila:
         Complejidad: O(1).
         """
         # TODO: implementa este método
-        pass
+        return len(self.datos)
 
     def __str__(self):
         """
@@ -81,7 +90,7 @@ class Pila:
         Complejidad: O(n).
         """
         # TODO: implementa este método
-        pass
+        return "Pila (tope -> base): " + str(self.datos[::-1])
 
 
 # =============================================================================
@@ -95,21 +104,42 @@ if __name__ == "__main__":
     print("Pruebas de la clase Pila")
     print("=" * 50)
 
-    # Caso 1: Pila vacía
-    # TODO: crea una pila vacía y verifica is_empty()
+# Caso 1: Pila vacía
+# TODO: crea una pila vacía y verifica is_empty()
+pila = Pila()
+print("caso 1 - pila vacia:", pila.is_empty())
 
-    # Caso 2: push de 3 elementos
-    # TODO: agrega 3 elementos y verifica size()
+# Caso 2: push de 3 elementos
+# TODO: agrega 3 elementos y verifica size()
+pila.push(1)
+pila.push(2)
+pila.push(3)
+print("caso 2 - tamaño:", pila.size())
 
-    # Caso 3: peek sin modificar la pila
-    # TODO: verifica que peek retorna el tope y la pila no cambia
+# Caso 3: peek sin modificar la pila
+# TODO: verifica que peek retorna el tope y la pila no cambia
+print("caso 3 - tope:", pila.peek())
+print("caso 3 - tamaño después de peek:", pila.size())
 
-    # Caso 4: pop retorna el tope
-    # TODO: haz pop y verifica el valor retornado
+# Caso 4: pop retorna el tope
+# TODO: haz pop y verifica el valor retornado
+valor = pila.pop()
+print ("caso 4- valor retirado:", valor)
+print("caso 4 - tamaño despues de pop:",pila.size())
 
-    # Caso 5: pop en pila vacía lanza IndexError
-    # TODO: usa try/except para verificar que se lanza IndexError
+# Caso 5: pop en pila vacía lanza IndexError
+pila.pop()
+pila.pop()
 
-    # Caso 6 en adelante: agrega tus propios casos de prueba
-    # ...
+try:
+    pila.pop()
+except IndexError:
+    print("caso 5 - pop en pila vacia: IndexError correcto")
  
+ 
+# Caso 6 en adelante: agrega tus propios casos de prueba
+# ...
+# Caso 6: push después de pop
+pila.push(4)
+print("caso 6 - nuevo tope:", pila.peek())
+print("caso 6 - tamaño:", pila.size())

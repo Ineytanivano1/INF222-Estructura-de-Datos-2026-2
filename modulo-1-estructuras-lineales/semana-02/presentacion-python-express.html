@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Python Express — INF 222</title>
+<style>
+  :root{
+    --bg:#F3F1EA; --surface:#FFFFFF; --surface-2:#EAE7DC;
+    --ink:#1B2030; --ink-soft:#3C4256; --muted:#6C7386; --line:#D9D5C7;
+    --amber:#9C6B15; --amber-strong:#7A5210;
+    --teal:#2F6F68; --teal-strong:#245751;
+    --code-bg:#232B3E; --code-ink:#EDEAE0;
+    --shadow:0 18px 40px -22px rgba(27,32,48,.35);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#12161F; --surface:#1B2131; --surface-2:#232B3E;
+      --ink:#EDEAE0; --ink-soft:#C7CADA; --muted:#8B90A6; --line:#323A52;
+      --amber:#D9A441; --amber-strong:#EFC06B;
+      --teal:#5CB0A6; --teal-strong:#7BC7BD;
+      --code-bg:#0E121B; --code-ink:#E7E9F2;
+      --shadow:0 24px 60px -20px rgba(0,0,0,.6);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#12161F; --surface:#1B2131; --surface-2:#232B3E;
+    --ink:#EDEAE0; --ink-soft:#C7CADA; --muted:#8B90A6; --line:#323A52;
+    --amber:#D9A441; --amber-strong:#EFC06B;
+    --teal:#5CB0A6; --teal-strong:#7BC7BD;
+    --code-bg:#0E121B; --code-ink:#E7E9F2;
+    --shadow:0 24px 60px -20px rgba(0,0,0,.6);
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;margin:0;}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",system-ui,-apple-system,sans-serif;
+    overflow:hidden;
+  }
+  h1,h2,h3{font-weight:700;margin:0 0 .4em;text-wrap:balance;}
+  code,.mono{font-family:"Consolas","JetBrains Mono",ui-monospace,monospace;}
+  a{color:var(--teal-strong);}
+
+  #deck{position:relative;height:100dvh;width:100%;}
+
+  .slide{
+    position:absolute;inset:0;
+    display:none;
+    flex-direction:column;
+    justify-content:center;
+    padding:6vh 8vw;
+    overflow-y:auto;
+  }
+  .slide.active{display:flex;}
+  .slide .kicker{
+    font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--amber-strong);font-weight:700;margin-bottom:.6em;
+  }
+  .slide h1{font-size:clamp(1.8rem,4vw,3rem);color:var(--ink);}
+  .slide h2{font-size:clamp(1.4rem,3vw,2.2rem);color:var(--ink);}
+  .slide p{font-size:clamp(1rem,1.6vw,1.25rem);color:var(--ink-soft);line-height:1.55;max-width:56em;}
+  .slide ul{font-size:clamp(1rem,1.6vw,1.2rem);color:var(--ink-soft);line-height:1.7;max-width:56em;}
+  .slide li{margin-bottom:.35em;}
+  .slide table{border-collapse:collapse;margin-top:1em;font-size:clamp(.85rem,1.3vw,1.05rem);}
+  .slide th,.slide td{border:1px solid var(--line);padding:.5em .8em;text-align:left;}
+  .slide th{background:var(--surface-2);color:var(--ink);}
+  .slide td{background:var(--surface);color:var(--ink-soft);}
+
+  pre{
+    background:var(--code-bg);color:var(--code-ink);
+    border-radius:10px;padding:1em 1.3em;
+    font-size:clamp(.8rem,1.5vw,1.05rem);
+    box-shadow:var(--shadow);
+    max-width:min(56em,90vw);
+    overflow-x:auto;line-height:1.5;
+  }
+  .cols{display:flex;gap:2.5vw;flex-wrap:wrap;align-items:flex-start;}
+  .cols > div{flex:1 1 320px;min-width:0;}
+  .badge{
+    display:inline-block;background:var(--surface-2);color:var(--ink-soft);
+    border:1px solid var(--line);border-radius:999px;
+    padding:.15em .8em;font-size:.85rem;margin-bottom:.6em;
+  }
+  .title-slide{align-items:center;text-align:center;}
+  .title-slide h1{font-size:clamp(2.2rem,5.5vw,4rem);}
+  .title-slide p{margin:0 auto;}
+
+  footer.bar{
+    position:fixed;left:0;right:0;bottom:0;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:.6em 1.2em;background:var(--surface);
+    border-top:1px solid var(--line);
+    font-size:.8rem;color:var(--muted);
+    z-index:10;
+  }
+  footer.bar .nav button{
+    background:var(--surface-2);border:1px solid var(--line);color:var(--ink);
+    border-radius:8px;padding:.35em .9em;cursor:pointer;font-size:.85rem;margin-left:.4em;
+  }
+  footer.bar .nav button:hover{background:var(--amber);color:#1B2030;}
+  #progress{position:fixed;top:0;left:0;height:4px;background:var(--teal);z-index:10;transition:width .2s;}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<div id="deck">
+
+  <section class="slide title-slide active">
+    <span class="badge mono">INF 222 · Estructura de Datos · 2026-2</span>
+    <h1>Python Express</h1>
+    <p>Lo esencial de Python para dejar de pelear con la sintaxis y enfocarte
+    en pilas, colas, listas enlazadas, recursión y árboles.</p>
+    <p class="mono" style="margin-top:2em;font-size:.95rem;">
+      Usa las flechas ← → del teclado, o los botones de abajo.</p>
+  </section>
+
+  <section class="slide">
+    <span class="kicker">Por qué esto importa</span>
+    <h2>Estructura de Datos ≠ aprender un lenguaje nuevo cada semana</h2>
+    <p>El contenido del curso (pilas, colas, árboles...) es independiente del
+    lenguaje. Pero si Python todavía te consume energía mental, esa energía
+    no está disponible para entender la estructura en sí.</p>
+    <p>Esta presentación cubre <strong>solo</strong> lo que necesitas para no
+    trabarte en sintaxis durante las próximas 11 semanas.</p>
+  </section>
+
+  <section class="slide">
+    <span class="kicker">Ejecutar código</span>
+    <h2>Cómo correr un archivo Python</h2>
+    <div class="cols">
+      <div>
+        <p>Desde la terminal, parado en la carpeta del archivo:</p>
+        <pre>python3 lab01_pila.py</pre>
+        <p>En VS Code: abre el archivo y presiona el botón ▶
+        ("Run Python File") arriba a la derecha.</p>
+      </div>
+      <div>
+        <p>Para correr las pruebas automáticas de un laboratorio:</p>
+        <pre>pip install pytest
+pytest -q</pre>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <span class="kicker">Fundamentos · 1</span>
+    <h2>Variables y tipos de datos</h2>
+    <div class="cols">
+      <div>
+        <pre>edad = 20            # int
+altura = 1.75         # float
+nombre = "Ana"         # str
+activo = True          # bool
+nada = None            # ausencia de valor</pre>
+      </div>
+      <div>
+        <ul>
+          <li>Python <strong>no</strong> declara el tipo: lo infiere del valor.</li>
+          <li>Una variable puede cambiar de tipo (evita hacerlo, pero es válido).</li>
+          <li><code>type(x)</code> te dice el tipo de <code>x</code> en tiempo real.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <span class="kicker">Fundamentos · 2</span>
+    <h2>Operadores</h2>
+    <table>
+      <tr><th>Tipo</th><th>Operadores</th><th>Ejemplo</th></tr>
+      <tr><td>Aritméticos</td><td class="mono">+ - * / // % **</td><td class="mono">7 // 2 → 3, 7 % 2 → 1, 2**10 → 1024</td></tr>
+      <tr><td>Comparación</td><td class="mono">== != &lt; &gt; &lt;= &gt;=</td><td class="mono">5 == 5 → True</td></tr>
+      <tr><td>Lógicos</td><td class="mono">and or not</td><td class="mono">edad &gt;= 18 and activo</td></tr>
+      <tr><td>Pertenencia</td><td class="mono">in / not in</td><td class="mono">3 in [1,2,3] → True</td></tr>
+    </table>
+  </section>
+
+  <section class="slide">
+    <span class="kicker">Fundamentos · 3</span>
+    <h2>Entrada, salida y f-strings</h2>
+    <pre>nombre = input("¿Cómo te llamas? ")
+edad = int(input("¿Edad? "))   # input() siempre retorna str: hay que convertir
+
+print(f"{nombre} tiene {edad} años")
+print(f"El doble es {edad * 2}")</pre>
+    <p>Las <span class="mono">f"..."</span> son la forma moderna de armar
+    strings con variables adentro. Evita concatenar con <span class="mono">+</span>.</p>
+  </section>
+
+  <section class="slide">
+    <span class="kicker">Control de flujo · 1</span>
+    <h2>if / elif / else</h2>
+    <pre>if edad &lt; 13:
+    categoria = "niño"
+elif edad &lt; 18:
+    categoria = "adolescente"
+else:
+    categoria = "adulto"</pre>
+    <p>Python usa <strong>indentación</strong> (4 espacios) en vez de llaves
+    <span class="mono">{}</span> para marcar bloques. Un error de indentación
+    es un error de sintaxis, no de estilo.</p>
+  </section>
+
+  <section class="slide">
+    <span class="kicker">Control de flujo · 2</span>
+    <h2>while — repetir mientras una condición sea verdadera</h2>
+    <pre>i = 1
+while i &lt;= 5:
+    print(i)
+    i += 1   # ¡importante! si olvidas esto, bucle infinito</pre>
+    <p>Úsalo cuando <strong>no sabes de antemano</strong> cuántas veces vas a
+    repetir (ej. hasta que una pila quede vacía).</p>
+  </section>
+
+  <section class="slide">
+    <span class="kicker">Control de flujo · 3</span>
+    <h2>for — recorrer una secuencia</h2>
+    <pre>for i in range(5):        # 0, 1, 2, 3, 4
+    print(i)
+
+for elemento in [10, 20, 30]:
+    print(elemento)
+
+for indice, valor in enumerate(["a", "b", "c"]):
+    print(indice, valor)   # 0 a, 1 b, 2 c</pre>
+    <p>Úsalo cuando <strong>sí sabes</strong> qué vas a recorrer: una lista,
+    un rango, los caracteres de un string.</p>
+  </section>
+
+  <section class="slide">
+    <span class="kicker">Control de flujo · 4</span>
+    <h2>break y continue</h2>
+    <div class="cols">
+      <div>
+        <p class="mono">break</p>
+        <pre>for x in lista:
+    if x == buscado:
+        break   # sale del bucle YA</pre>
+      </div>
+      <div>
+        <p class="mono">continue</p>
+        <pre>for x in lista:
+    if x &lt; 0:
+        continue   # salta al siguiente x
+    print(x)</pre>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <span class="kicker">Colecciones · 1</span>
+    <h2>Listas — la más usada del curso</h2>
+    <pre>pila = []
+pila.append(10)          # agregar al final -> O(1)
+pila.append(20)
+ultimo = pila.pop()       # quitar y retornar el último -> O(1)
+pila[0]                    # acceso por índice -> O(1)
+pila[-1]                   # último elemento
+pila[1:3]                  # slicing: sub-lista</pre>
+    <p><code>lab01_pila.py</code> de la semana 1 usa exactamente
+    <code>append</code> y <code>pop</code> por dentro.</p>
+  </section>
+
+  <section class="slide">
+    <span class="kicker">Colecciones · 2</span>
+    <h2>Tuplas, diccionarios y sets</h2>
+    <table>
+      <tr><th>Tipo</th><th>Sintaxis</th><th>Se puede modificar</th><th>Úsalo para</th></tr>
+      <tr><td>tuple</td><td class="mono">(x, y)</td><td>No</td><td>Datos fijos, ej. coordenadas</td></tr>
+      <tr><td>dict</td><td class="mono">{"clave": valor}</td><td>Sí</td><td>Buscar por clave, no por posición</td></tr>
+      <tr><td>set</td><td class="mono">{1, 2, 3}</td><td>Sí</td><td>Pertenencia rápida, sin duplicados</td></tr>
+    </table>
+  </section>
+
+  <section class="slide">
+    <span class="kicker">Funciones · 1</span>
+    <h2>def, parámetros y return</h2>
+    <pre>def es_par(numero):
+    return numero % 2 == 0
+
+def saludar(nombre, saludo="Hola"):   # valor por defecto
+    return f"{saludo}, {nombre}!"
+
+def sumar(*numeros):                    # cantidad variable de argumentos
+    return sum(numeros)</pre>
+  </section>
+
+  <section class="slide">
+    <span class="kicker">Manejo de errores</span>
+    <h2>try / except / raise</h2>
+    <pre>def pop(self):
+    if self.is_empty():
+        raise IndexError("pop en pila vacía")
+    return self._datos.pop()
+
+# quien usa la pila:
+try:
+    pila.pop()
+except IndexError:
+    print("La pila estaba vacía")</pre>
+    <p><code>lab01_pila.py</code> pide exactamente esto: "lanza
+    <span class="mono">IndexError</span> si está vacía".</p>
+  </section>
+
+  <section class="slide">
+    <span class="kicker">POO · 1</span>
+    <h2>De función suelta a clase</h2>
+    <div class="cols">
+      <div>
+        <p class="mono">Antes (función)</p>
+        <pre>def es_mayor(edad):
+    return edad >= 18
+
+es_mayor(20)</pre>
+      </div>
+      <div>
+        <p class="mono">Con clase (objeto)</p>
+        <pre>class Persona:
+    def __init__(self, edad):
+        self.edad = edad
+
+    def es_mayor(self):
+        return self.edad >= 18
+
+p = Persona(20)
+p.es_mayor()</pre>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <span class="kicker">POO · 2</span>
+    <h2>self — "este objeto en particular"</h2>
+    <ul>
+      <li><code>self</code> es el objeto sobre el que se llamó el método. Python lo pasa automático.</li>
+      <li><code>__init__</code> es el <strong>constructor</strong>: corre una vez, al crear el objeto con <code>Clase(...)</code>.</li>
+      <li><code>self.dato = valor</code> guarda un <strong>atributo</strong> — vive mientras el objeto exista.</li>
+      <li>Cada objeto tiene su propia copia de los atributos: <code>p1 = Persona(20)</code> y <code>p2 = Persona(30)</code> no se pisan entre sí.</li>
+    </ul>
+  </section>
+
+  <section class="slide">
+    <span class="kicker">POO · 3</span>
+    <h2>Así se ve una estructura de datos real</h2>
+    <pre>class Pila:
+    def __init__(self):
+        self._datos = []          # atributo: la lista interna
+
+    def push(self, dato):          # método: modifica el objeto
+        self._datos.append(dato)
+
+    def pop(self):
+        if not self._datos:
+            raise IndexError("pila vacía")
+        return self._datos.pop()
+
+    def __str__(self):              # método especial: usado por print()
+        return f"Pila: {self._datos}"</pre>
+  </section>
+
+  <section class="slide">
+    <span class="kicker">Recursión · 1</span>
+    <h2>La plantilla de toda función recursiva</h2>
+    <pre>def funcion(problema):
+    if es_caso_base(problema):        # 1. CASO BASE — detiene la recursión
+        return valor_directo
+
+    return combinar(                   # 2. CASO RECURSIVO — problema más chico
+        parte,
+        funcion(resto_del_problema)
+    )</pre>
+    <p>Sin caso base: recursión infinita → <code>RecursionError</code>.</p>
+  </section>
+
+  <section class="slide">
+    <span class="kicker">Recursión · 2</span>
+    <h2>Ejemplo: factorial</h2>
+    <div class="cols">
+      <div>
+        <pre>def factorial(n):
+    if n == 0:          # caso base
+        return 1
+    return n * factorial(n - 1)   # caso recursivo</pre>
+      </div>
+      <div>
+        <p>factorial(3) se resuelve así:</p>
+        <pre>factorial(3)
+= 3 * factorial(2)
+= 3 * (2 * factorial(1))
+= 3 * (2 * (1 * factorial(0)))
+= 3 * (2 * (1 * 1))
+= 6</pre>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <span class="kicker">Cierre</span>
+    <h2>Qué hacer ahora</h2>
+    <ul>
+      <li>Guarda <code>guia-rapida-python.pdf</code> y ábrelo mientras programas.</li>
+      <li>Resuelve los laboratorios <code>lab00</code> a <code>lab05</code> en
+      <code>refuerzo-python/laboratorios/</code>, en orden, corriendo <code>pytest</code>
+      en cada uno.</li>
+      <li>Vuelve a <code>lab01_pila.py</code> de la semana 1 — debería costar
+      menos.</li>
+      <li>Si sigues atascado, pregunta en clase o en horario de consulta
+      <strong>antes</strong> de la fecha de entrega.</li>
+    </ul>
+  </section>
+
+</div>
+
+<footer class="bar">
+  <span id="counter" class="mono">1 / 1</span>
+  <div class="nav">
+    <button id="prev">← Anterior</button>
+    <button id="next">Siguiente →</button>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var slides = document.querySelectorAll('.slide');
+  var total = slides.length;
+  var i = 0;
+
+  function render(){
+    slides.forEach(function(s, idx){ s.classList.toggle('active', idx === i); });
+    document.getElementById('counter').textContent = (i+1) + ' / ' + total;
+    document.getElementById('progress').style.width = (((i+1)/total)*100) + '%';
+  }
+  function go(delta){
+    i = Math.max(0, Math.min(total - 1, i + delta));
+    render();
+  }
+
+  document.getElementById('prev').addEventListener('click', function(){ go(-1); });
+  document.getElementById('next').addEventListener('click', function(){ go(1); });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { go(1); e.preventDefault(); }
+    if (e.key === 'ArrowLeft' || e.key === 'PageUp') { go(-1); e.preventDefault(); }
+    if (e.key === 'Home') { i = 0; render(); }
+    if (e.key === 'End') { i = total - 1; render(); }
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

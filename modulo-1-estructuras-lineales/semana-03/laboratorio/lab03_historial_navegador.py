@@ -12,7 +12,6 @@ Descripción:
     Usa la clase Pila de lab01 o PilaEnlazada de lab02 (elige una y cópiala aquí o impórtala).
 """
 
-
 # Puedes copiar aquí la clase Pila de lab01, o importarla:
 # from modulo_1_estructuras_lineales.semana_01.laboratorio.lab01_pila import Pila
 
@@ -43,12 +42,13 @@ class Pila:
         return len(self._datos)
 
     def __str__(self):
-        return f"Pila (tope→base): {list(reversed(self._datos))}"
+        return f"Pila (tope-base): {list(reversed(self._datos))}"
 
 
 # =============================================================================
 # SIMULADOR DE HISTORIAL
 # =============================================================================
+
 
 class HistorialNavegador:
     """
@@ -66,8 +66,9 @@ class HistorialNavegador:
         - La página actual pasa a la pila de atrás.
         - La pila de adelante se vacía (ya no hay futuro después de un desvío).
         """
-        # TODO: implementa este método
-        pass
+        self._pila_atras.push(self._actual)
+        self._actual = url
+        self._pila_adelante = Pila()
 
     def atras(self):
         """
@@ -76,8 +77,11 @@ class HistorialNavegador:
         - La nueva página actual es el tope de la pila de atrás.
         Retorna la URL a la que se navegó, o None si no hay página anterior.
         """
-        # TODO: implementa este método
-        pass
+        if self._pila_atras.is_empty():
+            return None
+        self._pila_adelante.push(self._actual)
+        self._actual = self._pila_atras.pop()
+        return self._actual
 
     def adelante(self):
         """
@@ -86,8 +90,11 @@ class HistorialNavegador:
         - La nueva página actual es el tope de la pila de adelante.
         Retorna la URL a la que se navegó, o None si no hay página siguiente.
         """
-        # TODO: implementa este método
-        pass
+        if self._pila_adelante.is_empty():
+            return None
+        self._pila_atras.push(self._actual)
+        self._actual = self._pila_adelante.pop()
+        return self._actual
 
     def pagina_actual(self):
         """Retorna la URL de la página actualmente visible."""
@@ -120,13 +127,13 @@ if __name__ == "__main__":
     nav.estado()
 
     print("\n--- Navegando Atrás x2 ---")
-    print(f"  → {nav.atras()}")
-    print(f"  → {nav.atras()}")
+    print(f"  - {nav.atras()}")
+    print(f"  - {nav.atras()}")
     print(f"Página actual: {nav.pagina_actual()}")
     nav.estado()
 
     print("\n--- Navegando Adelante x1 ---")
-    print(f"  → {nav.adelante()}")
+    print(f"  - {nav.adelante()}")
     print(f"Página actual: {nav.pagina_actual()}")
     nav.estado()
 
@@ -137,11 +144,11 @@ if __name__ == "__main__":
 
     print("\n--- Intentar adelante cuando no hay ---")
     resultado = nav.adelante()
-    print(f"  → {resultado}  (esperado: None)")
+    print(f"  - {resultado}  (esperado: None)")
 
     print("\n--- Intentar atrás hasta el inicio ---")
     while nav.atras() is not None:
         pass
     print(f"Página actual: {nav.pagina_actual()}  (esperado: about:blank)")
     resultado_extra = nav.atras()
-    print(f"Otro atrás → {resultado_extra}  (esperado: None)")
+    print(f"Otro atrás - {resultado_extra}  (esperado: None)")
